@@ -80,82 +80,83 @@ class Window(QWidget):
         self.show()
 
     def SimulateClicked(self):
-        self.flag = False
-        self.simulateClicked = True
-        self.nop = self.numberOfProcessET.text()
-        if self.nop == "":
-            self.nop = 0;
-        self.nop = int(self.nop)
-        #if self.checkInput(self.nop):
-        if self.nop < 1 or self.nop > 10:
-            QMessageBox.question(self, 'ERROR', "Invalid process number", QMessageBox.Ok)
+        try:
+            self.flag = False
+            self.simulateClicked = True
+            self.nop = self.numberOfProcessET.text()
+            self.nop = int(self.nop)
+            if self.nop < 1 or self.nop > 10:
+                QMessageBox.question(self, 'ERROR', "Invalid process number", QMessageBox.Ok)
 
-        else:
-            self.firstTime = False
-            if not self.firstTime:
+            else:
                 for i in range(self.nop):
                     self.processStartLineEdit[i].setText("")
                     self.processTimeLineEdit[i].setText("")
                     self.priorityLineEdit[i].setText("")
 
-                print("clearStuff")
                 self.clearStuff()
-            self.update()
+                self.update()
+     
+                self.nop = self.numberOfProcessET.text()
+                self.nop = int(self.nop)
+                self.enterStart.setText("Enter process value for start time :  ")
+                self.enterStart.adjustSize()
+                self.enterStart.move(50, 160)
+     
+                self.enterTime.setText("Enter burst time :  ")
+                self.enterTime.adjustSize()
+                self.enterTime.move(50, 190)
+     
+                self.enterPriority.setText("Enter Priority :  ")
+                self.enterPriority.adjustSize()
+                self.enterPriority.move(50, 220)
+     
+                # Display start time and time
+                for i in range(self.nop):
+                    self.processStartLineEdit[i].resize(24,24)
+                    self.processTimeLineEdit[i].resize(24,24)
+                    self.priorityLineEdit[i].resize(24,24)
+     
+                self.runBtn.resize(80,24)
+                self.runBtn.clicked.connect(self.Run)
+        except:
+            QMessageBox.question(self, 'ERROR', "Invalid process number", QMessageBox.Ok)
 
-            self.nop = int(self.nop)
-            self.enterStart.setText("Enter process value for start time :  ")
-            self.enterStart.adjustSize()
-            self.enterStart.move(50, 160)
-
-            self.enterTime.setText("Enter burst time :  ")
-            self.enterTime.adjustSize()
-            self.enterTime.move(50, 190)
-
-            self.enterPriority.setText("Enter Priority :  ")
-            self.enterPriority.adjustSize()
-            self.enterPriority.move(50, 220)
-
-            # Display start time and time
-            #j = 260
-            for i in range(self.nop):
-                self.processStartLineEdit[i].resize(24,24)
-                self.processTimeLineEdit[i].resize(24,24)
-                self.priorityLineEdit[i].resize(24,24)
-
-            self.runBtn.resize(80,24)
-            self.runBtn.clicked.connect(self.Run)
 
     def Run(self):
-        if self.simulateClicked==True:
-            print("in run: ", self.trueSequence)
-            self.nop = self.numberOfProcessET.text()
-            if self.nop == "": self.nop = 0
-            self.nop = int(self.nop)
-            for i in range(self.nop):
-                a = int(self.processStartLineEdit[i].text())
-                b = int(self.processTimeLineEdit[i].text())
-                self.startingTime.append(a)
-                self.timeForEachProcess.append(b)
+        if self.simulateClicked == True:
+            try:
+                print("timeForEachProcess: ",self.timeForEachProcess)
+                for i in range(self.nop):
+                    a = int(self.processStartLineEdit[i].text())
+                    b = int(self.processTimeLineEdit[i].text())
+                    self.startingTime.append(a)
+                    self.timeForEachProcess.append(b)
+     
+                if self.comboBox.currentText()=="FCFS":
+                    print("FCFS")
+                    self.FCFS()
+                elif self.comboBox.currentText()=="RR":
+                    print("RR")
+                    self.RR()
+                elif self.comboBox.currentText()=="TLQS":
+                    print("TLQS")
+                    self.TLQS()
+                else:
+                    print("SRTN")
+                    self.SRTN()
+                self.flag = True
+                self.simulateClicked = False
+                self.update()
+            except:
+                self.simulateClicked = False
+                print("exception>> simulatedClicked>> ", self.simulateClicked)
+                self.timeForEachProcess.clear()
+                QMessageBox.question(self, 'ERROR', "Invalid process number", QMessageBox.Ok)
+        else:
+            self.simulateClicked = True 
+            print("else>> simulatedClicked>> ", self.simulateClicked)
 
-            print(self.count,"in run: starting time: ",self.startingTime)
-            print(self.count,"in run: timeForEachProcess: ",self.timeForEachProcess)
-            self.count += 1
-
-            if self.comboBox.currentText()=="FCFS":
-                print("FCFS")
-                self.FCFS()
-            elif self.comboBox.currentText()=="RR":
-                print("RR")
-                self.RR()
-            elif self.comboBox.currentText()=="TLQS":
-                print("TLQS")
-                self.TLQS()
-            else:
-                print("SRTN")
-                self.SRTN()
-            self.flag = True
-            self.simulateClicked = False
-            self.update()
 
     def paintEvent(self, event):
         if self.flag:
