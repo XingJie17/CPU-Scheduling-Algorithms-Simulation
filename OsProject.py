@@ -239,7 +239,7 @@ class Window(QWidget):
             self.processLabel.append(self.pro)
 
     def clearStuff(self):
-        for i,j,l in zip(self.processStartLineEdit,self.processTimeLineEdit,self.processLabel):
+        for i,j,k,l in zip(self.processStartLineEdit,self.processTimeLineEdit,self.nums,self.processLabel,):
             i.resize(0,0)
             j.resize(0,0)
             l.setText("")
