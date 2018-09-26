@@ -1,10 +1,14 @@
 #!/usr/bin/python3
-from PyQt5 import QtGui
+from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import sys
-
+'''
+TODO
+-- reset edit line for start time
+-- reset edit line for need time
+''' 
 class Window(QWidget):
     def __init__(self):
         super().__init__()
@@ -16,90 +20,83 @@ class Window(QWidget):
         self.height = 500
 
         self.flag = False
+        self.firstTime= True
 
         self.numberOfProcess = 0
         self.timeForEachProcess = []
         self.startingTime = []
-        self.nums = []
+        self.nums = [] # Number on ruler
         self.processLabel = []
         self.processStartLineEdit = []
         self.processTimeLineEdit = []
         self.enterStart = QLabel(self)
         self.enterTime = QLabel(self)
         self.trueSequence = []
-        self.trueSequenceNumber = []
-        self.nop = 0
+        self.trueBurstTime= []
+        self.priority = []
+        self.nop = 0 # Number of process
 
         self.InitWindow()
 
     def InitWindow(self):
         self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.screenSize = QtWidgets.QDesktopWidget().screenGeometry(-1)
+        self.setGeometry(0, 0, self.screenSize.width(), self.screenSize.height())
+        #self.setGeometry(self.left, self.top, self.width, self.height)
         # Set window background color
         self.setAutoFillBackground(True)
         p = self.palette()
         p.setColor(self.backgroundRole(), Qt.white)
         self.setPalette(p)
 
-        space = 20
+        space = 30
         titleLabel = QLabel("CPU Scheduling Algorithms Simulation", self)
         titleLabel.move(50, space)
         algorithmsLabel = QLabel("Algorithms : ", self)
         algorithmsLabel.move(50, space+30)
-        comboBox = QComboBox(self)
-        comboBox.addItem("FCFS")
-        comboBox.addItem("RR")
-        comboBox.addItem("Three-level Queue Scheduling")
-        comboBox.addItem("SRTN")
-        comboBox.move (220, space+25)
+        self.comboBox = QComboBox(self)
+        self.comboBox.addItem("FCFS")
+        self.comboBox.addItem("RR")
+        self.comboBox.addItem("Three-level Queue Scheduling")
+        self.comboBox.addItem("SRTN")
+        self.comboBox.move (140, space+25)
         numberOfProcessLabel = QLabel("Number of Process (1-10)", self)
-        numberOfProcessLabel.move(50, space+60)
+        numberOfProcessLabel.move(50, space+70)
         self.numberOfProcessET = QLineEdit(self)
-        self.numberOfProcessET.move(220,space+55)
+        self.numberOfProcessET.move(225,space+65)
         simulateBtn = QPushButton("Simulate",self)
-        simulateBtn.move(50, space+90)
+        simulateBtn.move(50, space+100)
         simulateBtn.clicked.connect(self.SimulateClicked)
         self.runBtn = QPushButton("Run", self)
-        self.runBtn.move(50, 210)
+        self.runBtn.move(50, 220)
         self.runBtn.resize(0,0)
-        # Number for ruler
-        for i in range(100):
-            self.num = QLabel("", self)
-            self.nums.append(self.num)
+        self.hideStuff()
 
-        # Label for each process
-        for i in range(10):
-            self.pro = QLabel("",self)
-            self.processLabel.append(self.pro)
-
-        j = 260
-        # Edit text for starting time each process
-        for i in range(10):
-            self.st = QLineEdit(self)
-            self.st.resize(0, 0)
-            self.st.move(j, 145)
-            self.processStartLineEdit.append(self.st)
-
-            self.t = QLineEdit(self)
-            self.t.resize(0, 0)
-            self.t.move(j, 175)
-            j += 30
-            self.processTimeLineEdit.append(self.t)
-            
         self.show()
 
     def SimulateClicked(self):
+        self.flag = False 
+        print("flag: ",self.flag)
+        if not self.firstTime:
+            for i in range(self.nop):
+                self.processStartLineEdit[i].setText("")
+                self.processTimeLineEdit[i].setText("")
+            
+            self.clearStuff()
+
+        self.update()
+
         self.nop = self.numberOfProcessET.text()
         if self.nop == "": self.nop = 0
         self.nop = int(self.nop)
         self.enterStart.setText("Enter process value for start time :  ")
         self.enterStart.adjustSize()
-        self.enterStart.move(50, 150)
+        self.enterStart.move(50, 160)
 
-        self.enterTime.setText("Enter need time :  ")
+        self.enterTime.setText("Enter burst time :  ")
         self.enterTime.adjustSize()
-        self.enterTime.move(50, 180)
+        self.enterTime.move(50, 190)
         
         # Display start time and time
         j = 260
@@ -120,7 +117,18 @@ class Window(QWidget):
             self.startingTime.append(a)
             self.timeForEachProcess.append(b)
 
-        self.FCFS()
+        if self.comboBox.currentText()=="FCFS":
+            print("FCFS")
+            self.FCFS()
+        elif self.comboBox.currentText()=="RR":
+            print("RR")
+            self.RR()
+        elif self.comboBox.currentText()=="TLQS":
+            print("TLQS")
+            self.TLQS()
+        else:
+            print("SRTN")
+            self.SRTN()
         self.flag = True
         self.update()
 
@@ -146,7 +154,7 @@ class Window(QWidget):
                 painter.drawRect(tailPos, (200+letsMovetogether), i*30, 30)
 
                 # Process label
-                p = "P" + str(self.trueSequenceNumber[j])
+                p = "P" + str(self.trueBurstTime[j])
                 self.processLabel[j].setText(p)
                 midBar = tailPos+((i*30)/2)
                 self.processLabel[j].move(midBar-7, 207+letsMovetogether)
@@ -167,7 +175,25 @@ class Window(QWidget):
                 rulerPos += 30
 
             painter.drawRect(50, 242.5+letsMovetogether, sumTime*30, 1)
+            self.firstTime = False
             painter.end()
+
+        else:
+            painter = QPainter(self)
+            painter.begin(self)
+            painter.setPen(QPen(Qt.white, -1, Qt.SolidLine))
+            painter.drawRect(0, 300, self.screenSize.width(), 900)
+            for j in range(len(self.trueSequence)):
+                # Process label
+                p = ""
+                self.processLabel[j].setText(p)
+
+            sumTime = sum(self.timeForEachProcess)
+            for i in range(sumTime+1):
+                self.nums[i].setText("")
+
+            painter.end()
+
 
     def FCFS(self):
         a = list(set(self.startingTime))
@@ -176,12 +202,57 @@ class Window(QWidget):
             for j in range(self.nop):
                 if self.startingTime[j] == i:
                     self.trueSequence.append(self.timeForEachProcess[j])
-                    self.trueSequenceNumber.append(j)
+                    self.trueBurstTime.append(j)
+
+    def RR(self):
+        pass
+    
+    def TLQS(self):
+        pass
+
+    def SRTN(self):
+        pass
+
+    def hideStuff(self):
+        j = 280
+        # LineEdit for starting time each process
+        for i in range(10):
+            self.st = QLineEdit(self)
+            self.st.resize(0, 0)
+            self.st.move(j, 155)
+            self.processStartLineEdit.append(self.st)
+
+            self.t = QLineEdit(self)
+            self.t.resize(0, 0)
+            self.t.move(j, 185)
+            j += 30
+            self.processTimeLineEdit.append(self.t)
+            
+        # Number for ruler
+        for i in range(100):
+            self.num = QLabel("", self)
+            self.nums.append(self.num)
+
+        # Label for each process
+        for i in range(10):
+            self.pro = QLabel("",self)
+            self.processLabel.append(self.pro)
+
+    def clearStuff(self):
+        for i,j,l in zip(self.processStartLineEdit,self.processTimeLineEdit,self.processLabel):
+            i.resize(0,0)
+            j.resize(0,0)
+            l.setText("")
+        
+        for k in self.nums:
+            k.setText("")
+
+
+        self.trueBurstTime.clear()
+        self.trueSequence.clear()
 
 
 
-
-#Helooooooooooo
 App = QApplication(sys.argv)
 window = Window()
 sys.exit(App.exec())
