@@ -247,9 +247,10 @@ class Window(QWidget):
         for k in self.nums:
             k.setText("")
 
-
         self.trueBurstTime.clear()
         self.trueSequence.clear()
+        self.startingTime.clear()
+        self.nop = 0
 
 
 
