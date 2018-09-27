@@ -7,7 +7,6 @@ import sys
 
 '''
 TODO
--- match color to process
 ''' 
 
 class Window(QWidget):
@@ -241,14 +240,7 @@ class Window(QWidget):
 
 
     def FCFS(self):
-        a = list(set(self.startingTime))
-        
-        for i in a:
-            for j in range(self.nop):
-                if self.startingTime[j] == i:
-                    self.trueSequence.append(self.timeForEachProcess[j])
-                    self.trueBurstTime.append(j)
-
+        pass
     def RR(self):
         pass
     
