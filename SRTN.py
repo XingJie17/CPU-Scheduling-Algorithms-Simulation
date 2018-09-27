@@ -1,4 +1,4 @@
-def SRTN(self, ):
+def SRTN(self):
     # reference:
     # self.startingTime = list of arrival time
     # self.timeForEachProcess = list of burst time
@@ -37,33 +37,33 @@ def SRTN(self, ):
                 if(runningProcess == firstProcess):
                     processList.append(readyQueue[0].processLabel) # color it
                     readyQueue = readyQueue[1:] # delete from ready queue
-                    runningProcess.remainingTime--
+                    runningProcess.remainingTime-=
                 else: # compare remaining time
                     # if running process remaining time < new process burst time, then continue do the running process
                     if(runningProcess.remainingTime < readyQueue[0].burstTime):
                         processList.append(runningProcess.processLabel)
-                        runningProcess.remainingTime--
+                        runningProcess.remainingTime-=
                     # if running process remaining time = new process burst time, then compare priority
                     elif(runningProcess.remainingTime == readyQueue[0].burstTime):
                         if (runningProcess.priority <= readyQueue[0].priority):
                             processList.append(runningProcess.processLabel)
-                            runningProcess.remainingTime--
+                            runningProcess.remainingTime-=
                         else:
                             readyQueue.append(runningProcess)
                             runningProcess = readyQueue[0]
                             readyQueue = readyQueue[1:]
                             processList.append(runningProcess.processLabel)
-                            runningProcess.remainingTime--
+                            runningProcess.remainingTime-=
                     # if running process remaining time > new process burst time, then preempt
                     else:
                         readyQueue.append(runningProcess)
                         runningProcess = readyQueue[0]
                         readyQueue = readyQueue[1:]
                         processList.append(runningProcess.processLabel)
-                        runningProcess.remainingTime--
-            currentTime++
+                        runningProcess.remainingTime-=
+            currentTime+=
         else:
-            currentTime++
+            currentTime+=
             
         # sort the readyQueue according to shortest remainingTime and priority
         # to-do
