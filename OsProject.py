@@ -4,11 +4,12 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import sys
+
 '''
 TODO
--- error check: number of process
 -- match color to process
 ''' 
+
 class Window(QWidget):
     def __init__(self):
         super().__init__()
@@ -124,37 +125,47 @@ class Window(QWidget):
 
 
     def Run(self):
+        #if self.simulateClicked == True '''and self.count == 0''':
         if self.simulateClicked == True:
             try:
-                print("timeForEachProcess: ",self.timeForEachProcess)
+                totalTime = 0
                 for i in range(self.nop):
                     a = int(self.processStartLineEdit[i].text())
                     b = int(self.processTimeLineEdit[i].text())
+                    c = int(self.priorityLineEdit[i].text())
                     self.startingTime.append(a)
                     self.timeForEachProcess.append(b)
-     
-                if self.comboBox.currentText()=="FCFS":
-                    print("FCFS")
-                    self.FCFS()
-                elif self.comboBox.currentText()=="RR":
-                    print("RR")
-                    self.RR()
-                elif self.comboBox.currentText()=="TLQS":
-                    print("TLQS")
-                    self.TLQS()
+                    self.priority.append(c)
+                    totalTime += b
+
+                if totalTime > 60:
+                    QMessageBox.question(self, 'ERROR', "Total time exceeds the limit", QMessageBox.Ok)
+
                 else:
-                    print("SRTN")
-                    self.SRTN()
-                self.flag = True
-                self.simulateClicked = False
-                self.update()
+     
+                    if self.comboBox.currentText()=="FCFS":
+                        print("FCFS")
+                        self.FCFS()
+                    elif self.comboBox.currentText()=="RR":
+                        print("RR")
+                        self.RR()
+                    elif self.comboBox.currentText()=="TLQS":
+                        print("TLQS")
+                        self.TLQS()
+                    else:
+                        print("SRTN")
+                        self.SRTN()
+                    self.flag = True
+                    self.simulateClicked = False
+                    self.count = 0
+                    self.update()
             except:
-                self.simulateClicked = False
+                #self.simulateClicked = False
                 print("exception>> simulatedClicked>> ", self.simulateClicked)
                 self.timeForEachProcess.clear()
-                QMessageBox.question(self, 'ERROR', "Invalid process number", QMessageBox.Ok)
+                #QMessageBox.question(self, 'ERROR', "Must enter all boxes", QMessageBox.Ok)
         else:
-            self.simulateClicked = True 
+            #self.simulateClicked = True 
             print("else>> simulatedClicked>> ", self.simulateClicked)
 
 
@@ -167,14 +178,23 @@ class Window(QWidget):
             painter.begin(self)
             painter.setPen(QPen(Qt.white, -1, Qt.SolidLine))
 
+            mapColor = {}
+            uniqueTrueSequence = set(self.trueSequence)
+            colorIndex = 0
+            for i in uniqueTrueSequence:
+                mapColor[i] = colorIndex
+                colorIndex += 1
+
+            print(mapColor)
+
             letsMovetogether = 100
             # Color bars
             tailPos = 50
             j = 0
             for i in self.trueSequence:
-                r = color[j][0]
-                g = color[j][1]
-                b = color[j][2]
+                r = color[mapColor[i]][0]
+                g = color[mapColor[i]][1]
+                b = color[mapColor[i]][2]
                 painter.setBrush(QColor(r, g, b))
                 painter.drawRect(tailPos, (200+letsMovetogether), i*30, 30)
 
@@ -182,7 +202,7 @@ class Window(QWidget):
                 p = "P" + str(self.trueBurstTime[j])
                 self.processLabel[j].setText(p)
                 midBar = tailPos+((i*30)/2)
-                self.processLabel[j].move(midBar-7, 207+letsMovetogether)
+                self.processLabel[j].move(midBar-8, 207+letsMovetogether)
                 self.processLabel[j].adjustSize()
                 tailPos += i*30
                 j += 1
