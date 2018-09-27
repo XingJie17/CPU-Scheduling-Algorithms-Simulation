@@ -63,6 +63,8 @@ def SRTN(self):
                         runningProcess.remainingTime -= 1
             currentTime += 1
         else:
+            processList.append(runningProcess.processLabel)
+            runningProcess.remainingTime -= 1
             currentTime += 1
             
         # sort the readyQueue according to shortest remainingTime and priority
