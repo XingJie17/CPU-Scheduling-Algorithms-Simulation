@@ -244,20 +244,20 @@ class Window(QWidget):
     def FCFS(self):
         processes = []
         for i in range(0,len(priority)-1):
-        	for j in range(0,len(priority)-i-1):
-        		if(self.priority[j]>self.priority[j+1]):
-                	swap=self.priority[j]
-                	self.priority[j]=self.priority[j+1]
-                	self.priority[j+1]=swap
-                 
-                	swap=self.enterTime[j]
-                	self.enterTime[j]=bt[j+1]
-                	self.enterTime[j+1]=swap
-                 
-                 	swap=processes[j]
-                	processes[j]=processes[j+1]
-                	processes[j+1]=swap
-        
+            for j in range(0,len(priority)-i-1):
+                if(self.priority[j]>self.priority[j+1]):
+                    swap=self.priority[j]
+                    self.priority[j]=self.priority[j+1]
+                    self.priority[j+1]=swap
+                    
+                    swap=self.enterTime[j]
+                    self.enterTime[j]=bt[j+1]
+                    self.enterTime[j+1]=swap
+
+                    swap=processes[j]
+                    processes[j]=processes[j+1]
+                    processes[j+1]=swap
+
         for i in self.enterTime:
             self.trueBurstTime.append(i)
         
@@ -276,7 +276,6 @@ class Window(QWidget):
         # self.priority = list of priority 
     
         # local variables of SRTN
-        processLabel = self.processLabel
         arrivalTime = self.startingTime 
         burstTime = self.timeForEachProcess
         priority = self.priority
@@ -285,16 +284,16 @@ class Window(QWidget):
         processList = [] # list of process to be colored per 1 time unit
         
         currentTime = 1 # initialize at 1
-        processList = []
         readyQueue = []
-        
+        processLabel = 1
     
         print("In SRTN")
-        for i in range(self.numberOfProcess):
-            a = list(processLabel[i], arrivalTime[i], burstTime[i], priority[i], remainingTime[i])
+        for i in range(self.nop):
+            a = list(processLabel, arrivalTime[i], burstTime[i], priority[i], remainingTime[i])
             processList.append(a)
             if(processList[i].arrivalTime == 0):
                 firstProcess = processList[i]
+            processLabel += 1
     
         runningProcess = firstProcess # initialize runningProcess
         
