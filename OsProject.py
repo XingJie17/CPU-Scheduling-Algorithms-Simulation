@@ -136,6 +136,16 @@ class Window(QWidget):
                     self.startingTime.append(a)
                     self.timeForEachProcess.append(b)
                     self.priority.append(c)
+
+                totalTime = 0
+
+                for i in range(self.nop):
+                    a = int(self.processStartLineEdit[i].text())
+                    b = int(self.processTimeLineEdit[i].text())
+                    c = int(self.priorityLineEdit[i].text())
+                    self.startingTime.append(a)
+                    self.timeForEachProcess.append(b)
+                    self.priority.append(c)
                     totalTime += b
 
                 if totalTime > 60:
@@ -165,6 +175,7 @@ class Window(QWidget):
                 print("exception>> simulatedClicked>> ", self.simulateClicked)
                 self.timeForEachProcess.clear()
                 #QMessageBox.question(self, 'ERROR', "Must enter all boxes", QMessageBox.Ok)
+
         else:
             #self.simulateClicked = True 
             print("else>> simulatedClicked>> ", self.simulateClicked)
@@ -172,6 +183,8 @@ class Window(QWidget):
 
     def paintEvent(self, event):
         if self.flag:
+            self.trueSequence = [0,2,3,0,1,4,5]
+            self.trueBurstTime = [5,6,6,1,4,6,6]
             color = [(255, 64, 0), (255, 128, 0), (255, 191, 0),
                     (255, 255, 0), (128, 255, 0), (0, 255, 191),
                     (0, 191, 255), (0, 128, 255), (128, 0, 255), (255, 0, 255)]
@@ -192,10 +205,10 @@ class Window(QWidget):
             # Color bars
             tailPos = 50
             j = 0
-            for i in self.trueBurstTime:
-                r = color[mapColor[i]][0]
-                g = color[mapColor[i]][1]
-                b = color[mapColor[i]][2]
+            for i,k in zip(self.trueBurstTime,self.trueSequence):
+                r = color[mapColor[k]][0]
+                g = color[mapColor[k]][1]
+                b = color[mapColor[k]][2]
                 painter.setBrush(QColor(r, g, b))
                 painter.drawRect(tailPos, (200+letsMovetogether), i*30, 30)
 
@@ -219,6 +232,8 @@ class Window(QWidget):
                 self.nums[i].move(rulerPos-3, 250+letsMovetogether)
                 self.nums[i].adjustSize()
                 rulerPos += 30
+                if i == 61:
+                    break
 
             painter.drawRect(50, 242.5+letsMovetogether, sumTime*30, 1)
             self.firstTime = False
@@ -242,26 +257,7 @@ class Window(QWidget):
 
 
     def FCFS(self):
-        processes = []
-        for i in range(0,len(priority)-1):
-        	for j in range(0,len(priority)-i-1):
-        		if(self.priority[j]>self.priority[j+1]):
-                	swap=self.priority[j]
-                	self.priority[j]=self.priority[j+1]
-                	self.priority[j+1]=swap
-                 
-                	swap=self.enterTime[j]
-                	self.enterTime[j]=bt[j+1]
-                	self.enterTime[j+1]=swap
-                 
-                 	swap=processes[j]
-                	processes[j]=processes[j+1]
-                	processes[j+1]=swap
-        
-        for i in self.enterTime:
-            self.trueBurstTime.append(i)
-        
-        self.trueSequence = processes
+        pass
 
     def RR(self):
         pass
@@ -270,6 +266,8 @@ class Window(QWidget):
         pass
 
     def SRTN(self):
+        pass
+        '''
         # reference:
         # self.startingTime = list of arrival time
         # self.timeForEachProcess = list of burst time
@@ -352,6 +350,7 @@ class Window(QWidget):
 
         print("processList >> ",processList) 
         print("burstTime >> ",burstTime)
+        '''
 
 
     def hideStuff(self):
