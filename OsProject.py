@@ -65,7 +65,7 @@ class Window(QWidget):
         self.comboBox.addItem("Three-level Queue Scheduling")
         self.comboBox.addItem("SRTN")
         self.comboBox.move (140, space+25)
-        numberOfProcessLabel = QLabel("Number of Process (3-10)", self)
+        numberOfProcessLabel = QLabel("Number of Process (1-10)", self)
         numberOfProcessLabel.move(50, space+70)
         self.numberOfProcessET = QLineEdit(self)
         self.numberOfProcessET.move(225,space+65)
