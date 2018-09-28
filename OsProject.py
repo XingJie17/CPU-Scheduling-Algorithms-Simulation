@@ -349,6 +349,14 @@ class Window(QWidget):
                 runningProcess = readyQueue[0]
             readyQueue = readyQueue[1:]
 
+            # Everything has ended, create new list  
+            for i in processList.processLabel:
+                if i not in self.trueSequence:
+                    self.trueSequence.append(i)
+                    self.trueBurstTime.append(1)
+                else:
+                    self.trueBurstTime[-1] += 1
+
         print("processList >> ",processList) 
         print("burstTime >> ",burstTime)
 
