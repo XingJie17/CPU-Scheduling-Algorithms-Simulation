@@ -4,6 +4,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import sys
+import Process
 
 '''
 TODO
@@ -241,7 +242,27 @@ class Window(QWidget):
 
 
     def FCFS(self):
-        pass
+        processes = []
+        for i in range(0,len(priority)-1):
+        	for j in range(0,len(priority)-i-1):
+        		if(self.priority[j]>self.priority[j+1]):
+                	swap=self.priority[j]
+                	self.priority[j]=self.priority[j+1]
+                	self.priority[j+1]=swap
+                 
+                	swap=self.enterTime[j]
+                	self.enterTime[j]=bt[j+1]
+                	self.enterTime[j+1]=swap
+                 
+                 	swap=processes[j]
+                	processes[j]=processes[j+1]
+                	processes[j+1]=swap
+        
+        for i in self.enterTime:
+            self.trueBurstTime.append(i)
+        
+        self.trueSequence = processes
+
     def RR(self):
         pass
     
@@ -270,11 +291,11 @@ class Window(QWidget):
     
         print("In SRTN")
         for i in range(self.numberOfProcess):
-            processList.append(Process(processLabel[i], arrivalTime[i], burstTime[i], priority[i], remainingTime[i]))
+            a = list(processLabel[i], arrivalTime[i], burstTime[i], priority[i], remainingTime[i])
+            processList.append(a)
             if(processList[i].arrivalTime == 0):
                 firstProcess = processList[i]
     
-        print("In SRTN")
         runningProcess = firstProcess # initialize runningProcess
         
         while(currentTime != finishTime):
@@ -283,6 +304,7 @@ class Window(QWidget):
                 if(processList[i].arrivalTime == currentTime):
                     readyQueue.append(processList[i])
                     
+            print("break point")
             # compare and do preemption when new process arrives
             if(len(readyQueue) != 0):
                 if(readyQueue[-1].arrivalTime == currentTime):
