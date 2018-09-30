@@ -63,7 +63,7 @@ class Window(QWidget):
         algorithmsLabel = QLabel("Algorithms : ", self)
         algorithmsLabel.move(50, space+30)
         self.comboBox = QComboBox(self)
-        self.comboBox.addItem("TLQS")
+        self.comboBox.addItem("RR")
         self.comboBox.addItem("FCFS")
         self.comboBox.addItem("RR")
         self.comboBox.addItem("TLQS")
@@ -161,19 +161,30 @@ class Window(QWidget):
 
     def Run(self):
         #if self.simulateClicked == True '''and self.count == 0''':
+        #self.clearStuff()
         if self.simulateClicked == True:
             totalTime = 0
+            findZero = 99
             for i in range(self.nop):
                 a = int(self.processStartLineEdit[i].text())
                 b = int(self.processTimeLineEdit[i].text())
                 c = int(self.priorityLineEdit[i].text())
+                if a == 0:
+                    findZero = a
                 self.startingTime.append(a)
                 self.timeForEachProcess.append(b)
                 self.priority.append(c)
                 totalTime += b
+            
+            if findZero != 0:
+                QMessageBox.question(self, "ERROR", "Must have zero in startingTime",QMessageBox.Ok)
+                self.SimulateClicked()
+                return 0
 
             if totalTime > 60:
                 QMessageBox.question(self, 'ERROR', "Total time exceeds the limit", QMessageBox.Ok)
+                self.SimulateClicked()
+                return 0                
 
             else:
  
@@ -610,10 +621,110 @@ class Window(QWidget):
     
 
     def RR(self):
-        pass
-    
-    def TLQS(self):
+        arrivalTime = self.startingTime
+        priority = self.priority
+        burstTime = self.timeForEachProcess
+        quantum = int(self.quantumLE.text())
+
+        #arrivalTime = [0,1,5,6,7,8]
+        #priority = [3,3,1,1,5,6]
+        #burstTime = [6,4,6,6,6,6]
+        #quantum = 2
         
+        numberOfProcess = len(arrivalTime)
+        # Conver into int
+        for i in range(numberOfProcess):
+            arrivalTime[i] = int(arrivalTime[i])
+            priority[i] = int(priority[i])
+            burstTime[i] = int(burstTime[i])
+        # Process
+        process = []
+        pn = 0
+        totalTime = 0
+        for i,j,k in zip(arrivalTime, priority, burstTime):
+            process.append([pn,i,j,k])
+            totalTime += k
+            pn += 1
+        print("process >> ",process)
+        # Find first process
+        minA = min(arrivalTime)
+        firstProcess = []
+        for i in process:
+            if i[1]==minA:
+                firstProcess = i
+            
+        print("firstProcess >> ",firstProcess)
+        
+        gc = []
+    
+        timeLine = 0
+        if firstProcess[3] > quantum:
+            for i in range(quantum):
+                gc.append(firstProcess[0])
+                firstProcess[3] -= 1
+                timeLine += 1
+        else:
+            for i in range(firstProcess[0]):
+                gc.append(firstProcess[0])
+                firstProcess[3] -= 1
+                timeLine += 1
+        current = firstProcess[0]
+        old = current
+        print("frist old : ",old)
+        print("\n\ngc >> ",gc,"\n\n")
+        while (timeLine != totalTime):
+            temp = []
+    
+            for i in process:
+                if i[1] <= timeLine and i[3]>0 and i[0] != old:
+                    temp.append(i)
+        
+            #temp = sorted(temp,key = lambda t:t[1]) 
+            temp = sorted(temp,key = lambda t:t[2]) 
+            current = temp[0][0]
+            print (temp)
+            print("old : ",old)
+            print("current: ",current)
+            print("timeLine : ", timeLine)
+            if current != old:
+                if temp[0][3] > quantum:
+                    for i in range(quantum):
+                        gc.append(temp[0][0])
+                        temp[0][3] -= 1
+                        timeLine += 1
+                else:
+                    for i in range(temp[0][3]):
+                        gc.append(temp[0][0])
+                        temp[0][3] -= 1
+                        timeLine += 1
+    
+                old = current
+                current = temp[0][0]
+                print(1)
+            #print("temp >> ", temp)
+    
+        print("gc >> ",gc)
+        print("len >> ",len(gc))
+
+        cp = 0
+        pp = gc[0]
+        for i in gc:
+            if i == pp:
+                cp += 1
+            else:
+                self.trueSequence.append(pp)
+                self.trueBurstTime.append(cp)
+                pp = i
+                cp = 1
+        
+        self.trueSequence.append(pp)
+        self.trueBurstTime.append(cp)
+        
+        print("trueSe : ",self.trueSequence)
+        print("trueBr : ",self.trueBurstTime)
+        
+    def TLQS(self):
+            
         arrivalTime = self.startingTime
         priority = self.priority
         burstTime = self.timeForEachProcess
@@ -1292,6 +1403,7 @@ class Window(QWidget):
         processLabel = 0
         firstProcess = []
     
+        minn = min(arrivalTime)
         print("In SRTN")
 
         for i in range(self.nop):
