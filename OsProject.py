@@ -49,8 +49,8 @@ class Window(QWidget):
         self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.setWindowTitle(self.title)
         self.screenSize = QtWidgets.QDesktopWidget().screenGeometry(-1)
-        #self.setGeometry(0, 0, self.screenSize.width(), self.screenSize.height())
-        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setGeometry(0, 0, self.screenSize.width(), self.screenSize.height())
+        #self.setGeometry(self.left, self.top, self.width, self.height)
         # Set window background color
         self.setAutoFillBackground(True)
         p = self.palette()
@@ -63,7 +63,6 @@ class Window(QWidget):
         algorithmsLabel = QLabel("Algorithms : ", self)
         algorithmsLabel.move(50, space+30)
         self.comboBox = QComboBox(self)
-        self.comboBox.addItem("RR")
         self.comboBox.addItem("FCFS")
         self.comboBox.addItem("RR")
         self.comboBox.addItem("TLQS")
@@ -74,7 +73,6 @@ class Window(QWidget):
         self.numberOfProcessET = QLineEdit(self)
         self.numberOfProcessET.move(225,space+65)
 
-        self.numberOfProcessET.setText("6")
 
         simulateBtn = QPushButton("Simulate",self)
         simulateBtn.move(50, space+100)
@@ -83,7 +81,7 @@ class Window(QWidget):
         self.runBtn.move(50, 280)
         self.runBtn.resize(0,0)
         self.quantumLbl = QLabel("Quantum : ",self)
-        self.quantumLbl.move(999,999)
+        self.quantumLbl.move(999,9999)
         self.quantumLE = QLineEdit(self)
         self.quantumLE.move(280, 245)
         self.quantumLE.resize(0,0)
@@ -107,7 +105,6 @@ class Window(QWidget):
                     self.processStartLineEdit[i].setText("")
                     self.processTimeLineEdit[i].setText("")
                     self.priorityLineEdit[i].setText("")
-                self.quantumLE.setText("1")
                 #for i in range(10):
                     #self.processStartLineEdit[i].setText("1")
                     #self.priorityLineEdit[i].setText("1")
@@ -163,64 +160,30 @@ class Window(QWidget):
         #if self.simulateClicked == True '''and self.count == 0''':
         #self.clearStuff()
         if self.simulateClicked == True:
-            totalTime = 0
-            findZero = 99
-            for i in range(self.nop):
-                a = int(self.processStartLineEdit[i].text())
-                b = int(self.processTimeLineEdit[i].text())
-                c = int(self.priorityLineEdit[i].text())
-                if a == 0:
-                    findZero = a
-                self.startingTime.append(a)
-                self.timeForEachProcess.append(b)
-                self.priority.append(c)
-                totalTime += b
-            
-            if findZero != 0:
-                QMessageBox.question(self, "ERROR", "Must have zero in startingTime",QMessageBox.Ok)
-                self.SimulateClicked()
-                return 0
-
-            if totalTime > 60:
-                QMessageBox.question(self, 'ERROR', "Total time exceeds the limit", QMessageBox.Ok)
-                self.SimulateClicked()
-                return 0                
-
-            else:
- 
-                if self.comboBox.currentText()=="FCFS":
-                    print("FCFS")
-                    self.FCFS()
-                elif self.comboBox.currentText()=="RR":
-                    print("RR")
-                    self.RR()
-                elif self.comboBox.currentText()=="TLQS":
-                    print("TLQS")
-                    self.TLQS()
-                else:
-                    print("SRTN")
-                    self.SRTN()
-                    print("after SRTN")
-                self.flag = True
-                self.simulateClicked = False
-                self.count = 0
-                self.update()
-            '''
             try:
                 totalTime = 0
-
+                findZero = 99
                 for i in range(self.nop):
                     a = int(self.processStartLineEdit[i].text())
                     b = int(self.processTimeLineEdit[i].text())
                     c = int(self.priorityLineEdit[i].text())
+                    if a == 0:
+                        findZero = a
                     self.startingTime.append(a)
                     self.timeForEachProcess.append(b)
                     self.priority.append(c)
                     totalTime += b
-
+                
+                if findZero != 0:
+                    QMessageBox.question(self, "ERROR", "Must have zero in startingTime",QMessageBox.Ok)
+                    self.SimulateClicked()
+                    return 0
+    
                 if totalTime > 60:
                     QMessageBox.question(self, 'ERROR', "Total time exceeds the limit", QMessageBox.Ok)
-
+                    self.SimulateClicked()
+                    return 0                
+    
                 else:
      
                     if self.comboBox.currentText()=="FCFS":
@@ -245,7 +208,6 @@ class Window(QWidget):
                 print("exception>> simulatedClicked>> ", self.simulateClicked)
                 self.timeForEachProcess.clear()
                 #QMessageBox.question(self, 'ERROR', "Must enter all boxes", QMessageBox.Ok)
-            '''
 
         else:
             #self.simulateClicked = True 
@@ -672,20 +634,28 @@ class Window(QWidget):
         old = current
         print("frist old : ",old)
         print("\n\ngc >> ",gc,"\n\n")
+        temp = []
         while (timeLine != totalTime):
-            temp = []
-    
             for i in process:
-                if i[1] <= timeLine and i[3]>0 and i[0] != old:
-                    temp.append(i)
+                if i[1] <= timeLine and i[3]!=0 and i[0] != old:
+                    found = False
+                    for j in temp:
+                        if i[0]==j[0]:
+                            found = True
+                        
+                    if not found:
+                        temp.append(i)
         
-            #temp = sorted(temp,key = lambda t:t[1]) 
-            temp = sorted(temp,key = lambda t:t[2]) 
+            temp.sort(key = lambda t:t[2], reverse = False) 
+            for i in process:
+                if i[0] == old and i[3] != 0:
+                    temp.append(i)
             current = temp[0][0]
             print (temp)
             print("old : ",old)
             print("current: ",current)
             print("timeLine : ", timeLine)
+            print()
             if current != old:
                 if temp[0][3] > quantum:
                     for i in range(quantum):
@@ -697,11 +667,37 @@ class Window(QWidget):
                         gc.append(temp[0][0])
                         temp[0][3] -= 1
                         timeLine += 1
+                del temp[0]
+            elif len(temp)>1:
+                if temp[1][3] > quantum:
+                    for i in range(quantum):
+                        gc.append(temp[1][0])
+                        temp[1][3] -= 1
+                        timeLine += 1
+                    else:
+                        for i in range(temp[0][3]):
+                            gc.append(temp[0][0])
+                            temp[0][3] -= 1
+                            timeLine += 1
+                    del temp[0]
+            elif len(temp)==1:
+                if temp[0][3] > quantum:
+                    for i in range(quantum):
+                        gc.append(temp[0][0])
+                        temp[0][3] -= 1
+                        timeLine += 1
+                else:
+                    for i in range(temp[0][3]):
+                        gc.append(temp[0][0])
+                        temp[0][3] -= 1
+                        timeLine += 1
+                del temp[0]
+                
+
     
-                old = current
-                current = temp[0][0]
-                print(1)
-            #print("temp >> ", temp)
+            old = current
+
+        print(temp)
     
         print("gc >> ",gc)
         print("len >> ",len(gc))

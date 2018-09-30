@@ -1,3 +1,5 @@
+import Process
+
 def SRTN(self):
     # reference:
     # self.startingTime = list of arrival time
@@ -75,3 +77,14 @@ def SRTN(self):
         if(runningProcess.remainingTime == 0):
             runningProcess = readyQueue[0]
             readyQueue = readyQueue[1:]
+
+
+def main():
+    arrivalTime = ["0","1","5","6","7","8"]
+    priority = ["3","3","2","1","5","6"]
+    burstTime = ["6","4","6","6","6","6"]
+    quantum = 2
+    SRTN(Process)
+
+if __name__ == "__main__":
+    main()
