@@ -197,15 +197,6 @@ class Window(QWidget):
             '''
             try:
                 totalTime = 0
-                for i in range(self.nop):
-                    a = int(self.processStartLineEdit[i].text())
-                    b = int(self.processTimeLineEdit[i].text())
-                    c = int(self.priorityLineEdit[i].text())
-                    self.startingTime.append(a)
-                    self.timeForEachProcess.append(b)
-                    self.priority.append(c)
-
-                totalTime = 0
 
                 for i in range(self.nop):
                     a = int(self.processStartLineEdit[i].text())
@@ -1296,7 +1287,7 @@ class Window(QWidget):
         processes = []
         processList = [] # list of process to be colored per 1 time unit
         
-        currentTime = 1 # initialize at 1
+        currentTime = 2 # initialize at 1
         readyQueue = []
         processLabel = 0
         firstProcess = []
@@ -1313,83 +1304,102 @@ class Window(QWidget):
         print(processes)
 
         runningProcess = firstProcess # initialize runningProcess
+        processList.append(runningProcess)
+        runningProcess[4] -= 1
+
+        print('current time:' + str(currentTime-1))
+        print("ready queue: " + str(readyQueue))
+        print('running process: ' + str(runningProcess))
+
+        # adds new process to ready queue at time = 1
+        for i in range(self.nop):
+            if(processes[i][1] == 1):
+                readyQueue.append(processes[i])
+
+        # new running process will be the shortest remaining time
+        if(runningProcess[4] == 0):
+            runningProcess = readyQueue[0]
+            readyQueue = readyQueue[1:]
         
         while(currentTime <= finishTime):
-    
-            # new running process will be the shortest remaining time
-            if(runningProcess[4] == 0):
-                runningProcess = readyQueue[0]
-                readyQueue = readyQueue[1:]
-            
-            # adds new process to ready queue
-            for i in range(self.nop):
-                if(processes[i][1] == currentTime):
-                    readyQueue.append(processes[i])
+                
             print('current time:' + str(currentTime))
-            print('running process: ' + str(runningProcess))
             print("ready queue: " + str(readyQueue))
                     
             # compare and do preemption when new process arrives
             if(len(readyQueue) != 0):
                 print("something in ready queue")
-                if(readyQueue[-1][1] == currentTime or runningProcess[4] != 0):
-                    if(runningProcess == firstProcess):
-                        processList.append(runningProcess) # color it
+                if(currentTime == 1):
+                    pass
+                else:
+                    # compare remaining time
+                    # if running process remaining time < new process burst time, then continue do the running process
+                    if(runningProcess[4] < readyQueue[0][2]):
+                        print('running process: ' + str(runningProcess))
+                        processList.append(runningProcess)
                         runningProcess[4] -= 1
                         print('remaining time: ' + str(runningProcess[4]))
-                    else: # compare remaining time
-                        # if running process remaining time < new process burst time, then continue do the running process
-                        if(runningProcess[4] < readyQueue[0][2]):
+                    # if running process remaining time = new process burst time, then compare priority
+                    elif(runningProcess[4] == readyQueue[0][2]):
+                        if (runningProcess[3] <= readyQueue[0][3]):
+                            print('running process: ' + str(runningProcess))
                             processList.append(runningProcess)
                             runningProcess[4] -= 1
                             print('remaining time: ' + str(runningProcess[4]))
-                        # if running process remaining time = new process burst time, then compare priority
-                        elif(runningProcess[4] == readyQueue[0][2]):
-                            if (runningProcess[3] <= readyQueue[0][3]):
-                                processList.append(runningProcess)
-                                runningProcess[4] -= 1
-                                print('remaining time: ' + str(runningProcess[4]))
-                            else:
-                                readyQueue.append(runningProcess)
-                                runningProcess = readyQueue[0]
-                                readyQueue = readyQueue[1:]
-                                processList.append(runningProcess)
-                                runningProcess[4] -= 1
-                                print('remaining time: ' + str(runningProcess[4]))
-                        # if running process remaining time > new process burst time, then preempt
                         else:
                             readyQueue.append(runningProcess)
                             runningProcess = readyQueue[0]
+                            print('running process: ' + str(runningProcess))
                             readyQueue = readyQueue[1:]
                             processList.append(runningProcess)
                             runningProcess[4] -= 1
                             print('remaining time: ' + str(runningProcess[4]))
-                currentTime += 1
+                    # if running process remaining time > new process burst time, then preempt
+                    else:
+                        readyQueue.append(runningProcess)
+                        runningProcess = readyQueue[0]
+                        print('running process: ' + str(runningProcess))
+                        readyQueue = readyQueue[1:]
+                        processList.append(runningProcess)
+                        runningProcess[4] -= 1
+                        print('remaining time: ' + str(runningProcess[4]))
             else:
                 processList.append(runningProcess)
+                print('running process: ' + str(runningProcess))
                 runningProcess[4] -= 1
                 print('remaining time: ' + str(runningProcess[4]))
-                currentTime += 1
+
+            # adds new process to ready queue
+            for i in range(self.nop):
+                if(processes[i][1] == currentTime):
+                    readyQueue.append(processes[i])
+
+            # new running process will be the shortest remaining time
+            if(runningProcess[4] == 0 and (len(readyQueue) != 0)):
+                runningProcess = readyQueue[0]
+                readyQueue = readyQueue[1:]
                 
             # sort the readyQueue according to shortest remainingTime and priority
             if(len(readyQueue) != 0):
                 readyQueue = sorted(readyQueue, key = lambda x: (x[4], x[3]))
+            currentTime += 1
 
         # Everything has ended, create new list
-        print('end point')
+        print('test bug')
+        self.trueSequence.append(processList[0][0])
+        self.trueBurstTime.append(1)
+
         print(processList)
-        for i in range(finishTime):
-            if processList[i][0] not in self.trueSequence:
+        
+        for i in range(1, finishTime):
+            if processList[i][0] == processList[i-1][0]:
+                self.trueBurstTime[-1] += 1
+            else:
                 self.trueSequence.append(processList[i][0])
                 self.trueBurstTime.append(1)
-                print('bug point')
-            else:
-                self.trueBurstTime[-1] += 1
-                print('bug point 2')
 
         print("processList >> ",self.trueSequence)
         print("burstTime >> ",self.trueBurstTime)
-
 
     def hideStuff(self):
         j = 280
