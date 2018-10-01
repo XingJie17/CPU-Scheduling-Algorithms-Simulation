@@ -5,10 +5,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import sys
 
-'''
-TODO
-''' 
-
 class Window(QWidget):
     def __init__(self):
         super().__init__()
@@ -143,7 +139,7 @@ class Window(QWidget):
                     self.quantumLE.resize(24,24)
                         
                 else:
-                    self.quantumLbl.move(999,999)
+                    self.quantumLbl.move(999,9999)
                     self.quantumLE.resize(0,0)
 
      
@@ -159,6 +155,50 @@ class Window(QWidget):
     def Run(self):
         #if self.simulateClicked == True '''and self.count == 0''':
         #self.clearStuff()
+        if self.simulateClicked == True:
+            totalTime = 0
+            findZero = 99
+            for i in range(self.nop):
+                a = int(self.processStartLineEdit[i].text())
+                b = int(self.processTimeLineEdit[i].text())
+                c = int(self.priorityLineEdit[i].text())
+                if a == 0:
+                    findZero = a
+                self.startingTime.append(a)
+                self.timeForEachProcess.append(b)
+                self.priority.append(c)
+                totalTime += b
+            
+            if findZero != 0:
+                QMessageBox.question(self, "ERROR", "Must have zero in startingTime",QMessageBox.Ok)
+                self.SimulateClicked()
+                return 0
+       
+            if totalTime > 60:
+                QMessageBox.question(self, 'ERROR', "Total time exceeds the limit", QMessageBox.Ok)
+                self.SimulateClicked()
+                return 0                
+       
+            else:
+       
+                if self.comboBox.currentText()=="FCFS":
+                    print("FCFS")
+                    self.FCFS()
+                elif self.comboBox.currentText()=="RR":
+                    print("RR")
+                    self.RR()
+                elif self.comboBox.currentText()=="TLQS":
+                    print("TLQS")
+                    self.TLQS()
+                else:
+                    print("SRTN")
+                    self.SRTN()
+                    print("after SRTN")
+                self.flag = True
+                self.simulateClicked = False
+                self.count = 0
+                self.update()
+        '''    
         if self.simulateClicked == True:
             try:
                 totalTime = 0
@@ -208,10 +248,12 @@ class Window(QWidget):
                 print("exception>> simulatedClicked>> ", self.simulateClicked)
                 self.timeForEachProcess.clear()
                 #QMessageBox.question(self, 'ERROR', "Must enter all boxes", QMessageBox.Ok)
-
         else:
             #self.simulateClicked = True 
             print("else>> simulatedClicked>> ", self.simulateClicked)
+    
+        '''
+        
 
 
     def paintEvent(self, event):
@@ -452,135 +494,91 @@ class Window(QWidget):
 
 
     def FCFS(self):
-        # FCFS for q2
-        # find first process
-        print("\n")
-        print("---------- Q2 ---------")
-        print()
-        #q2 = {0: [6, 0, 3], 1: [4, 1, 3], 2: [6, 5, 1], 3: [6, 6, 1], 4: [6, 7, 5], 5: [6, 8, 6]}
-        # process: burstTime, arrival, priority 
-        q2 = {}
-        for i in range(self.nop):
-           q2[i] = [self.timeForEachProcess[i],self.startingTime[i],self.priority[i]] 
-
-        print("q2: ",q2)
-
-        totalTimeQ2 = 0
-        for i in q2:
-            totalTimeQ2 += q2[i][0]
-        
-        aa = totalTimeQ2
-        minA = 99
-        minP = 99
-        for i in q2:
-            if q2[i][1] <= minA:
-                minA = q2[i][1]
-                if q2[i][2] <= minP:
-                    minP = q2[i][2]
-                    current = i
-    
-        #print(q2[current])
-        timeLine = q2[current][1]
-        aa += timeLine
-        #print("timeLine >> ",timeLine)
-        ganttChart2 = []
-        tempBurstTime = 0
-        mcp = 6 # Max current priority
-        mcpIndex = 99
-        oldCurrent = 99
-        startTimeLine = timeLine
-        while timeLine < aa:
-            tempBurstTime += 1
-            a = ((current,startTimeLine, tempBurstTime))
-            #print("oldCurrent >> ",oldCurrent, " current >> ",current)
-            if current == oldCurrent:
-                ganttChart2[len(ganttChart2)-1] = a
-            else:
-                ganttChart2.append(a)
-            oldCurrent = current
-            #totalTimeQ1 -= tempBurstTime
-            q2[current][0] -= 1
-            timeLine += 1
-            #print(current,"burstTime of q >> ",q2[current][0])
-            found = False
-            for i in q2:
-                if q2[i][1] == timeLine and q2[i][2] < mcp:
-                    found = True
-                    mcp = q2[i][2]
-                    mcpIndex = i
+        arrivalTime = self.startingTime
+        priority = self.priority
+        burstTime = self.timeForEachProcess
+        numberOfProcess = len(arrivalTime)
+        # Conver into int
+        for i in range(numberOfProcess):
+            arrivalTime[i] = int(arrivalTime[i])
+            priority[i] = int(priority[i])
+            burstTime[i] = int(burstTime[i])
+        # Process
+        process = []
+        pn = 0
+        totalTime = 0
+        for i,j,k in zip(arrivalTime, priority, burstTime):
+            process.append([pn,i,j,k])
+            totalTime += k
+            pn += 1
+        print("process >> ",process)
+        # Find first process
+        minA = min(arrivalTime)
+        firstProcess = []
+        for i in process:
+            if i[1]==minA:
+                firstProcess = i
             
-            if not found:
-                mcp = q2[current][2]
-                mcpIndex = current 
-    
-            #print("mcp >> ",mcp)
-            #print("mcpIndex >> ",mcpIndex)
-            #print("current priority >> ",q2[current][2])
-    
-            if(q2[current][0] == 0):
-                tempList = []
-                #print("Q2 >> ",q2)
-                
-                for i in q2:
-                    #print("another process >> ",i,q2[i])
-                    if q2[i][1]<=timeLine and q2[i][0] != 0:
-                        #print("---------- break point ----------")
-                        tempList.append(i)
+        print("firstProcess >> ",firstProcess)
+        gc = []
+        gc.append(firstProcess[0])
+        firstProcess[3] -= 1
+        timeLine = 1
+        while timeLine!=totalTime:
+            temp = []
+            for i in process:
+                if i[1] <= timeLine and i[3] != 0:
+                    temp.append(i) 
+            
+            #temp.sort(key = lambda t:t[2])
+            #temp.sort()
+            
+            # find highest priority
+            temp_p =[]
+            for i in temp:
+               temp_p.append(i[2]) 
+            hp = min(temp_p)
+            dupl = temp_p.count(hp)
+            if dupl == 1:
+                for i in range(len(temp)):
+                    if temp[i][2] == hp:
+                        gc.append(temp[i][0])
+                        temp[i][3] -= 1
+                        break
+            else:
+                tempA = []
+                for i in range(len(temp)):
+                    if temp[i][2] == hp:
+                        tempA.append(temp[i][1])
                     
-                # Create list for priority
-                tempPri = []
-                for i in tempList:
-                    tempPri.append(q2[i][2])
+                la = min(tempA)
+                for i in range(len(temp)):
+                    if temp[i][1] == la and temp[i][2 == hp]:
+                        gc.append(temp[i][0])
+                        temp[i][3] -= 1
+                        break
+            timeLine += 1
+            print(temp)
     
-                if(len(tempPri) == 0): break
-                # Find highest priority
-                x = min(tempPri)
-    
-                # Count how many highest priority
-                dupl = tempPri.count(x)
-                #print("dup >> ",dupl)
-    
-                # if only 1, set current to it
-                if dupl == 1:
-                    for i in tempList:
-                        if q2[i][2] == x:
-                            current = i
-                            break
-                else:
-                    # Create list for arrival time
-                    tempArr = []
-                    for i in tempList:
-                        if q2[i][2] == x:
-                            tempArr.append(q2[i][1])
-    
-                    # Find who comes first
-                    y = min(tempArr)
-                    #print("who come first >> ",y)
-                    # set current to it
-                    for i in tempList:
-                        if q2[i][1] == y:
-                            current = i
-                            break
-                    
-                startTimeLine = timeLine
-                tempBurstTime = 0
-                
-            elif q2[current][2] > mcp:
-                #print("priority shift")
-                current = mcpIndex
-                startTimeLine = timeLine
-                tempBurstTime = 0
-    
-            #print()
-            #print("timeLine >> ",timeLine)
-    
-        #print("process - timeLine - burstTime")
-        print("ganttChart2 >> ",ganttChart2)
-        print("---------- Break point ----------")
-        for i in ganttChart2:
-            self.trueSequence.append(i[0])
-            self.trueBurstTime.append(i[2])
-    
+        print("gc >> ",gc)
+        print("len >> ",len(gc))
+        cp = 0
+        pp = gc[0]
+        for i in gc:
+            if i == pp:
+                cp += 1
+            else:
+                self.trueSequence.append(pp)
+                self.trueBurstTime.append(cp)
+                pp = i
+                cp = 1
+        
+        self.trueSequence.append(pp)
+        self.trueBurstTime.append(cp)
+            
+        print("trueSe : ",self.trueSequence)
+        print("trueBr : ",self.trueBurstTime)
+        
 
     def RR(self):
         arrivalTime = self.startingTime
@@ -1561,6 +1559,7 @@ class Window(QWidget):
         self.trueSequence.clear()
         self.startingTime.clear()
         self.timeForEachProcess.clear()
+        self.priority.clear()
         self.nop = 0
 
     def checkInput(self, text):
