@@ -6,9 +6,11 @@ Created by
   3. Pung Hui Ling 1161304157
   4. Yoong Shenwei 1161304136
   
+  
 Python 3  
 Required dependencies:
   1. PyQt5
+  
   
 Run instruction
   1. Clone this repository into your machine
