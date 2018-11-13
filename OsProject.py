@@ -31,6 +31,8 @@ class Window(QWidget):
         self.trueSequence = []
         self.trueBurstTime= []
         self.priority = []
+        self.TATValue = []
+        self.WTValue = []
         self.nop = 0 # Number of process
         self.count = 0
         self.simulateClicked = False # Prevent run from running by itself :(
@@ -59,6 +61,11 @@ class Window(QWidget):
         algorithmsLabel = QLabel("Algorithms : ", self)
         algorithmsLabel.move(50, space+30)
         self.comboBox = QComboBox(self)
+        '''
+        # ---- <Debugging> ----
+        self.comboBox.addItem("TLQS")
+        # ---- </Debugging> ----
+        '''
         self.comboBox.addItem("FCFS")
         self.comboBox.addItem("RR")
         self.comboBox.addItem("TLQS")
@@ -68,6 +75,12 @@ class Window(QWidget):
         numberOfProcessLabel.move(50, space+70)
         self.numberOfProcessET = QLineEdit(self)
         self.numberOfProcessET.move(225,space+65)
+        '''
+        # ---- <Debugging> ----
+        self.numberOfProcessET.setText("6")
+        # ---- </Debugging> ----
+        '''
+
 
 
         simulateBtn = QPushButton("Simulate",self)
@@ -81,11 +94,27 @@ class Window(QWidget):
         self.quantumLE = QLineEdit(self)
         self.quantumLE.move(280, 245)
         self.quantumLE.resize(0,0)
+
+        self.TATLabel = QLabel("",self)
+        self.WTLabel = QLabel("",self)
+        self.TATLabel.move(150, 283)
+        self.WTLabel.move(150, 313)
+
+        self.turnaroundTimeLabel = QLabel(self)
+        self.turnaroundTimeLabel.move(490, 280)
+        
+        self.waitingTimeLabel = QLabel(self)
+        self.waitingTimeLabel.move(490, 310)
+
         self.hideStuff()
 
         self.show()
 
-        #self.SimulateClicked()
+        '''
+        # ---- <Debugging> ----
+        self.SimulateClicked()
+        # ---- </Debugging> ----
+        '''
 
     def SimulateClicked(self):
         try:
@@ -101,22 +130,13 @@ class Window(QWidget):
                     self.processStartLineEdit[i].setText("")
                     self.processTimeLineEdit[i].setText("")
                     self.priorityLineEdit[i].setText("")
-                #for i in range(10):
-                    #self.processStartLineEdit[i].setText("1")
-                    #self.priorityLineEdit[i].setText("1")
 
-                #self.processTimeLineEdit[0].setText("6")
-                #self.processTimeLineEdit[1].setText("4")
-                #self.processTimeLineEdit[2].setText("6")
-                #self.processTimeLineEdit[3].setText("6")
-                #self.processTimeLineEdit[4].setText("6")
-                #self.processTimeLineEdit[5].setText("6")
                 self.clearStuff()
                 self.update()
      
                 self.nop = self.numberOfProcessET.text()
                 self.nop = int(self.nop)
-                self.enterStart.setText("Enter process value for start time :  ")
+                self.enterStart.setText("Enter arrival time:  ")
                 self.enterStart.adjustSize()
                 self.enterStart.move(50, 160)
      
@@ -141,12 +161,46 @@ class Window(QWidget):
                 else:
                     self.quantumLbl.move(999,9999)
                     self.quantumLE.resize(0,0)
+                
+                '''
+                # ---- <Debugging> ----
+                self.processStartLineEdit[0].setText("0")
+                self.processStartLineEdit[1].setText("1")
+                self.processStartLineEdit[2].setText("5")
+                self.processStartLineEdit[3].setText("6")
+                self.processStartLineEdit[4].setText("7")
+                self.processStartLineEdit[5].setText("8")
 
-     
+                self.processTimeLineEdit[0].setText("6")
+                self.processTimeLineEdit[1].setText("4")
+                self.processTimeLineEdit[2].setText("6")
+                self.processTimeLineEdit[3].setText("6")
+                self.processTimeLineEdit[4].setText("6")
+                self.processTimeLineEdit[5].setText("6")
+
+                self.processTimeLineEdit[0].setText("6")
+                self.processTimeLineEdit[1].setText("4")
+                self.processTimeLineEdit[2].setText("6")
+                self.processTimeLineEdit[3].setText("6")
+                self.processTimeLineEdit[4].setText("6")
+                self.processTimeLineEdit[5].setText("6")
+
+                self.priorityLineEdit[0].setText("3")
+                self.priorityLineEdit[1].setText("3")
+                self.priorityLineEdit[2].setText("1")
+                self.priorityLineEdit[3].setText("1")
+                self.priorityLineEdit[4].setText("5")
+                self.priorityLineEdit[5].setText("6")
+
+                self.quantumLE.setText("2")
+                # ---- </Debugging> ----
+                '''
+
                 self.runBtn.resize(80,24)
                 self.runBtn.clicked.connect(self.Run)
 
-                #self.Run()
+
+                self.Run()
 
         except:
             QMessageBox.question(self, 'ERROR', "Invalid process number", QMessageBox.Ok)
@@ -194,68 +248,17 @@ class Window(QWidget):
                     print("SRTN")
                     self.SRTN()
                     print("after SRTN")
+
+                
+                self.TATLabel.setText("Turnaround Time (completion time - arrival time): ")
+                self.WTLabel.setText("Waiting Time (turnaround time - burst time): ")
+                self.TATLabel.resize(1000,25)
+                self.WTLabel.resize(1000,25)
                 self.flag = True
                 self.simulateClicked = False
                 self.count = 0
                 self.update()
-        '''    
-        if self.simulateClicked == True:
-            try:
-                totalTime = 0
-                findZero = 99
-                for i in range(self.nop):
-                    a = int(self.processStartLineEdit[i].text())
-                    b = int(self.processTimeLineEdit[i].text())
-                    c = int(self.priorityLineEdit[i].text())
-                    if a == 0:
-                        findZero = a
-                    self.startingTime.append(a)
-                    self.timeForEachProcess.append(b)
-                    self.priority.append(c)
-                    totalTime += b
-                
-                if findZero != 0:
-                    QMessageBox.question(self, "ERROR", "Must have zero in startingTime",QMessageBox.Ok)
-                    self.SimulateClicked()
-                    return 0
-    
-                if totalTime > 60:
-                    QMessageBox.question(self, 'ERROR', "Total time exceeds the limit", QMessageBox.Ok)
-                    self.SimulateClicked()
-                    return 0                
-    
-                else:
-     
-                    if self.comboBox.currentText()=="FCFS":
-                        print("FCFS")
-                        self.FCFS()
-                    elif self.comboBox.currentText()=="RR":
-                        print("RR")
-                        self.RR()
-                    elif self.comboBox.currentText()=="TLQS":
-                        print("TLQS")
-                        self.TLQS()
-                    else:
-                        print("SRTN")
-                        self.SRTN()
-                        print("after SRTN")
-                    self.flag = True
-                    self.simulateClicked = False
-                    self.count = 0
-                    self.update()
-            except:
-                #self.simulateClicked = False
-                print("exception>> simulatedClicked>> ", self.simulateClicked)
-                self.timeForEachProcess.clear()
-                #QMessageBox.question(self, 'ERROR', "Must enter all boxes", QMessageBox.Ok)
-        else:
-            #self.simulateClicked = True 
-            print("else>> simulatedClicked>> ", self.simulateClicked)
-    
-        '''
-        
-
-
+       
     def paintEvent(self, event):
         if self.flag:
 
@@ -491,14 +494,14 @@ class Window(QWidget):
                 self.nums[i].setText("")
 
             painter.end()
-
-
+            
+#------------------------------------------------------------------------------------------------------------------------------------------
     def FCFS(self):
         arrivalTime = self.startingTime
         priority = self.priority
         burstTime = self.timeForEachProcess
         numberOfProcess = len(arrivalTime)
-        # Conver into int
+        # Convert into int
         for i in range(numberOfProcess):
             arrivalTime[i] = int(arrivalTime[i])
             priority[i] = int(priority[i])
@@ -514,15 +517,22 @@ class Window(QWidget):
         print("process >> ",process)
         # Find first process
         minA = min(arrivalTime)
-        firstProcess = []
+        firstProcess_1 = []
+        minP_list = []
         for i in process:
             if i[1]==minA:
-                firstProcess = i
-            
-        print("firstProcess >> ",firstProcess)
+                firstProcess_1.append(i)
+                minP_list.append(i[2])
+
+        minP = min(minP_list) 
+        firstProcess_2 = 0
+        for i in firstProcess_1:
+            if i[2] == minP:
+                firstProcess_2 = i[0]
+
         gc = []
-        gc.append(firstProcess[0])
-        firstProcess[3] -= 1
+        gc.append(firstProcess_2)
+        process[firstProcess_2][3] -= 1
         timeLine = 1
         while timeLine!=totalTime:
             temp = []
@@ -530,9 +540,7 @@ class Window(QWidget):
                 if i[1] <= timeLine and i[3] != 0:
                     temp.append(i) 
             
-            #temp.sort(key = lambda t:t[2])
-            #temp.sort()
-            
+            print(temp)            
             # find highest priority
             temp_p =[]
             for i in temp:
@@ -546,21 +554,23 @@ class Window(QWidget):
                         temp[i][3] -= 1
                         break
             else:
+                print('dupl',dupl)
                 tempA = []
                 for i in range(len(temp)):
                     if temp[i][2] == hp:
                         tempA.append(temp[i][1])
-                    
+                print(tempA)    
                 la = min(tempA)
+                print('la',la)
                 for i in range(len(temp)):
-                    if temp[i][1] == la and temp[i][2 == hp]:
+                    if temp[i][1] == la and temp[i][2] == hp:
                         gc.append(temp[i][0])
                         temp[i][3] -= 1
                         break
             timeLine += 1
-            print(temp)
+            #print(temp)
+            print('timeline',timeLine,"gc >> ",gc,'\n')
     
-        print("gc >> ",gc)
         print("len >> ",len(gc))
         cp = 0
         pp = gc[0]
@@ -578,8 +588,11 @@ class Window(QWidget):
             
         print("trueSe : ",self.trueSequence)
         print("trueBr : ",self.trueBurstTime)
-        
 
+        tt = self.checkTurnaround(gc)
+        self.checkWaiting(tt,burstTime)
+
+#------------------------------------------------------------------------------------------------------------------------------------------
     def RR(self):
         arrivalTime = self.startingTime
         priority = self.priority
@@ -716,7 +729,11 @@ class Window(QWidget):
         
         print("trueSe : ",self.trueSequence)
         print("trueBr : ",self.trueBurstTime)
+
+        tt = self.checkTurnaround(gc)
+        self.checkWaiting(tt,burstTime)
         
+#------------------------------------------------------------------------------------------------------------------------------------------
     def TLQS(self):
             
         arrivalTime = self.startingTime
@@ -1373,10 +1390,33 @@ class Window(QWidget):
             print("gc3 >> ",gc3)
             print("\n")
 
-            print("process - burstTime")
+            gc11 = []
+            gc22 = []
+            gc33 = []
+            for i,j in gc1:
+                for k in range(j):
+                    gc11.append(i)
+            for i,j in gc2:
+                for k in range(j):
+                    gc22.append(i)
+            for i,j in gc3:
+                for k in range(j):
+                    gc33.append(i)
+            print('gc11',gc11)
+            print('gc22',gc22)
+            print('gc33',gc33)
+
+            gc = []
+            for i,j,k in zip(gc11,gc22,gc33):
+                temp = [i,j,k]
+                gc.append(max(temp))
+            print('gc',gc)
+            tt = self.checkTurnaround(gc)
+            self.checkWaiting(tt,burstTime)
 
 
 
+#------------------------------------------------------------------------------------------------------------------------------------------
     def SRTN(self):
         # reference:
         # self.startingTime = list of arrival time
@@ -1506,7 +1546,15 @@ class Window(QWidget):
 
         print("processList >> ",self.trueSequence)
         print("burstTime >> ",self.trueBurstTime)
+        gc = []
+        for i in processList:
+            gc.append(i[0])
+    
 
+        tt = self.checkTurnaround(gc)
+        self.checkWaiting(tt,burstTime)
+
+#------------------------------------------------------------------------------------------------------------------------------------------
     def hideStuff(self):
         j = 280
         # LineEdit for starting time each process
@@ -1532,7 +1580,7 @@ class Window(QWidget):
             p.move(j,215)
             self.priorityLineEdit.append(p)
             j += 30
-            
+
         # Number for ruler
         for i in range(200):
             self.num = QLabel("", self)
@@ -1543,6 +1591,17 @@ class Window(QWidget):
             self.pro = QLabel("",self)
             self.processLabel.append(self.pro)
 
+        # Number for each turnaround time
+        for i in range(100):
+            self.pro = QLabel("",self)
+            self.TATValue.append(self.pro)
+
+        # Number for each waiting time
+        for i in range(100):
+            self.pro = QLabel("",self)
+            self.WTValue.append(self.pro)
+
+#------------------------------------------------------------------------------------------------------------------------------------------
     def clearStuff(self):
         for i,j,k in zip(self.processStartLineEdit,self.processTimeLineEdit,self.priorityLineEdit):
             i.resize(0,0)
@@ -1555,6 +1614,12 @@ class Window(QWidget):
         for k in self.nums:
             k.setText("")
 
+        for i in self.TATValue:
+            i.setText("")
+        
+        for k in self.WTValue:
+            k.setText("")
+
         self.trueBurstTime.clear()
         self.trueSequence.clear()
         self.startingTime.clear()
@@ -1562,14 +1627,74 @@ class Window(QWidget):
         self.priority.clear()
         self.nop = 0
 
+        self.turnaroundTimeLabel.setText('')
+        self.waitingTimeLabel.setText('')
+
     def checkInput(self, text):
         print(text," ",type(text))
         if text != "1" or text != "2" or text != "3" or text != "4" or text != "5" or text != "6" or text != "7" or text != "8" or text != "9" or text != "10":
             return False
         else:
             return True 
+    
+    def checkTurnaround(self,gc):
+        # completion_time - arrival_time
+        startP = []
+        startT = []
+        for i,j in enumerate(gc):
+            if j not in startP:
+                startP.append(j)
+                startT.append(i)
+
+        start = []
+        for i,j in zip(startP,startT):
+            start.append([i,j])
+
+        endP = []
+        endT = []
+        for i,j in reversed(list(enumerate(gc))):
+            if j not in endP:
+                endP.append(j)
+                endT.append(i+1)
+
+        end = []
+        for i,j in zip(endP,endT):
+            end.append([i,j])
+
+        end.sort()
+        turnaroundtime = []
+        for i,j in end:
+            for k,l in start:
+                if i == k:
+                    turnaroundtime.append((j-l))
+
+        print('turnaround time',turnaroundtime)
 
 
+        text = ', '.join(str(i) for i in turnaroundtime)
+        avg = sum(turnaroundtime)/len(turnaroundtime)
+        avg = str(float("{0:.2f}".format(avg)))
+        print('avg',avg)
+        text = text + '     Average turnaround time: ' + avg
+        self.turnaroundTimeLabel.setText(text)         
+        self.turnaroundTimeLabel.resize(1000,25)
+        
+        return turnaroundtime
+
+    def checkWaiting(self,turnaround, burstTime):
+        result = []
+        print(turnaround)
+        print(burstTime)
+        for i,j in zip(turnaround,burstTime):
+            result.append(i-j)
+
+        text = ', '.join(str(i) for i in result)
+        avg = sum(result)/len(result)
+        avg = str(float("{0:.2f}".format(avg)))
+        print('avg',avg)
+        text = text + '     Average waiting time: ' + avg
+        self.waitingTimeLabel.setText(text)         
+        self.waitingTimeLabel.resize(1000,25)
 
 App = QApplication(sys.argv)
 window = Window()
