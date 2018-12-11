@@ -117,20 +117,19 @@ class Window(QWidget):
         '''
 
     def SimulateClicked(self):
+        self.flag = False
+        self.simulateClicked = True
         try:
-            self.flag = False
-            self.simulateClicked = True
-            self.nop = self.numberOfProcessET.text()
-            self.nop = int(self.nop)
+            self.nop = int(self.numberOfProcessET.text())
             if self.nop < 3 or self.nop > 10:
-                QMessageBox.question(self, 'ERROR', "Invalid process number", QMessageBox.Ok)
-
+                error = "Invalid process number("+str(self.nop)+")"
+                QMessageBox.question(self, 'ERROR', error, QMessageBox.Ok)
             else:
                 for i in range(self.nop):
                     self.processStartLineEdit[i].setText("")
                     self.processTimeLineEdit[i].setText("")
                     self.priorityLineEdit[i].setText("")
-
+     
                 self.clearStuff()
                 self.update()
      
@@ -170,41 +169,38 @@ class Window(QWidget):
                 self.processStartLineEdit[3].setText("6")
                 self.processStartLineEdit[4].setText("7")
                 self.processStartLineEdit[5].setText("8")
-
+     
                 self.processTimeLineEdit[0].setText("6")
                 self.processTimeLineEdit[1].setText("4")
                 self.processTimeLineEdit[2].setText("6")
                 self.processTimeLineEdit[3].setText("6")
                 self.processTimeLineEdit[4].setText("6")
                 self.processTimeLineEdit[5].setText("6")
-
+     
                 self.processTimeLineEdit[0].setText("6")
                 self.processTimeLineEdit[1].setText("4")
                 self.processTimeLineEdit[2].setText("6")
                 self.processTimeLineEdit[3].setText("6")
                 self.processTimeLineEdit[4].setText("6")
                 self.processTimeLineEdit[5].setText("6")
-
+     
                 self.priorityLineEdit[0].setText("3")
                 self.priorityLineEdit[1].setText("3")
                 self.priorityLineEdit[2].setText("1")
                 self.priorityLineEdit[3].setText("1")
                 self.priorityLineEdit[4].setText("5")
                 self.priorityLineEdit[5].setText("6")
-
+     
                 self.quantumLE.setText("2")
                 # ---- </Debugging> ----
                 '''
-
+     
                 self.runBtn.resize(80,24)
                 self.runBtn.clicked.connect(self.Run)
-
-
-                self.Run()
-
         except:
-            QMessageBox.question(self, 'ERROR', "Invalid process number", QMessageBox.Ok)
+            QMessageBox.question(self, 'ERROR', "Please enter process number",QMessageBox.Ok)
 
+        #self.Run()
 
     def Run(self):
         #if self.simulateClicked == True '''and self.count == 0''':
@@ -589,7 +585,7 @@ class Window(QWidget):
         print("trueSe : ",self.trueSequence)
         print("trueBr : ",self.trueBurstTime)
 
-        tt = self.checkTurnaround(gc)
+        tt = self.checkTurnaround(gc,arrivalTime)
         self.checkWaiting(tt,burstTime)
 
 #------------------------------------------------------------------------------------------------------------------------------------------
@@ -730,7 +726,7 @@ class Window(QWidget):
         print("trueSe : ",self.trueSequence)
         print("trueBr : ",self.trueBurstTime)
 
-        tt = self.checkTurnaround(gc)
+        tt = self.checkTurnaround(gc,arrivalTime)
         self.checkWaiting(tt,burstTime)
         
 #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1637,18 +1633,11 @@ class Window(QWidget):
         else:
             return True 
     
-    def checkTurnaround(self,gc):
+    def checkTurnaround(self,gc, arrivalTime):
         # completion_time - arrival_time
-        startP = []
-        startT = []
-        for i,j in enumerate(gc):
-            if j not in startP:
-                startP.append(j)
-                startT.append(i)
-
         start = []
-        for i,j in zip(startP,startT):
-            start.append([i,j])
+        for i in range(len(arrivalTime)):
+            start.append([i,arrivalTime[i]])
 
         endP = []
         endT = []
